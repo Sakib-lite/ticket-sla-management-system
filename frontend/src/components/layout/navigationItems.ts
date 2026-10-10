@@ -1,3 +1,5 @@
+"use client";
+
 import { ChartBar, Gear, Ticket, Users } from "@phosphor-icons/react";
 import type { Role } from "@/types";
 

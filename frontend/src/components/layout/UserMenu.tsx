@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { SignOut } from "@phosphor-icons/react";
 import { confirmAction } from "@/hooks/useConfirm";
 import { LOGIN_PATH } from "@/constants/auth";
+import { authApi } from "@/services";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function UserMenu() {
@@ -24,8 +25,9 @@ export default function UserMenu() {
     });
 
     if (confirmed) {
+      await authApi.logout().catch(() => null);
       signOut();
-      router.push(LOGIN_PATH);
+      router.replace(LOGIN_PATH);
     }
   };
 
