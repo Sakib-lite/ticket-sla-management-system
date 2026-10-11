@@ -40,4 +40,14 @@ class TicketPolicy
     {
         return $user->isStaff();
     }
+
+    public function assign(User $user, Ticket $ticket): bool
+    {
+        return $user->isStaff();
+    }
+
+    public function claim(User $user, Ticket $ticket): bool
+    {
+        return $user->isAgent() && $ticket->status->isActive();
+    }
 }

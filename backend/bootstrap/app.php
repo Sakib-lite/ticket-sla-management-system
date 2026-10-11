@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Resources\UserResource;
+use App\Services\Assignment\TicketAlreadyAssignedException;
 use App\Services\Tickets\InvalidStatusTransitionException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,4 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'message' => $exception->getMessage(),
             'errors' => ['status' => [$exception->getMessage()]],
         ], 422));
+
+        $exceptions->render(fn (TicketAlreadyAssignedException $exception) => response()->json([
+            'message' => $exception->getMessage(),
+            'assignee' => UserResource::make($exception->ticket->assignee),
+        ], 409));
     })->create();

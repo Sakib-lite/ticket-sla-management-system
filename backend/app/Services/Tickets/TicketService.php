@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\ActivityRecorder;
+use App\Services\Assignment\AssignmentService;
 use App\Support\Sla\SlaCalculator;
 use App\Support\Tickets\TicketNumberGenerator;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,7 @@ final readonly class TicketService
         private TicketNumberGenerator $ticketNumbers,
         private SlaCalculator $sla,
         private ActivityRecorder $activities,
+        private AssignmentService $assignments,
     ) {}
 
     /** @param  array{subject: string, description: string, priority: string, category_id: int}  $attributes */
@@ -43,6 +45,7 @@ final readonly class TicketService
             ]);
 
             $this->activities->record($ticket, ActivityType::Created, $creator);
+            $this->assignments->autoAssign($ticket);
 
             return $ticket;
         }, attempts: 3);
