@@ -7,6 +7,7 @@ import { useAgents } from "@/hooks/useAgents";
 import { useCategories } from "@/hooks/useCategories";
 import EditTicketModal from "./fragments/EditTicketModal";
 import TicketAssignmentPanel from "./fragments/TicketAssignmentPanel";
+import TicketConversation from "./fragments/TicketConversation";
 import TicketHeader from "./fragments/TicketHeader";
 import TicketMetaPanel from "./fragments/TicketMetaPanel";
 import TicketStatusActions from "./fragments/TicketStatusActions";
@@ -58,6 +59,7 @@ export default function TicketDetailPage() {
               <TicketStatusActions status={ticket.status} onChange={detail.changeStatus} />
             </section>
           )}
+          <TicketConversation ticket={ticket} onReplied={detail.refresh} />
         </div>
         <div className="space-y-6">
           <TicketAssignmentPanel

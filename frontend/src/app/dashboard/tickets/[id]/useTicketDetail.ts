@@ -96,6 +96,7 @@ export const useTicketDetail = () => {
     ticket,
     error,
     isLoading,
+    refresh,
     permissions,
     isEditing,
     openEditor: () => setIsEditing(true),

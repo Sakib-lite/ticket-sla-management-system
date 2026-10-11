@@ -74,3 +74,12 @@ export type Agent = {
   is_available: boolean;
   active_tickets_count: number;
 };
+
+export type Reply = {
+  id: number;
+  ticket_id: number;
+  body: string;
+  is_internal: boolean;
+  author: User;
+  created_at: string;
+};
