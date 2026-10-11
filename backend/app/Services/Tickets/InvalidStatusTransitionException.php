@@ -3,12 +3,12 @@
 namespace App\Services\Tickets;
 
 use App\Enums\TicketStatus;
-use DomainException;
+use App\Exceptions\UnprocessableException;
 
-class InvalidStatusTransitionException extends DomainException
+class InvalidStatusTransitionException extends UnprocessableException
 {
     public function __construct(TicketStatus $from, TicketStatus $to)
     {
-        parent::__construct("A ticket cannot move from {$from->label()} to {$to->label()}.");
+        parent::__construct("A ticket cannot move from {$from->label()} to {$to->label()}.", 'status');
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
+use App\Exceptions\UnprocessableException;
 use App\Http\Resources\UserResource;
 use App\Services\Assignment\TicketAlreadyAssignedException;
-use App\Services\Tickets\InvalidStatusTransitionException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,9 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        $exceptions->render(fn (InvalidStatusTransitionException $exception) => response()->json([
+        $exceptions->render(fn (UnprocessableException $exception) => response()->json([
             'message' => $exception->getMessage(),
-            'errors' => ['status' => [$exception->getMessage()]],
+            'errors' => [$exception->field => [$exception->getMessage()]],
         ], 422));
 
         $exceptions->render(fn (TicketAlreadyAssignedException $exception) => response()->json([

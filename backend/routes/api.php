@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\TicketReplyController;
 use App\Http\Controllers\Api\TicketStatusController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,4 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('tickets/{ticket}/assign', [TicketAssignmentController::class, 'assign']);
     Route::post('tickets/{ticket}/claim', [TicketAssignmentController::class, 'claim']);
     Route::delete('tickets/{ticket}/assignment', [TicketAssignmentController::class, 'unassign']);
+    Route::get('tickets/{ticket}/replies', [TicketReplyController::class, 'index']);
+    Route::post('tickets/{ticket}/replies', [TicketReplyController::class, 'store']);
 });
