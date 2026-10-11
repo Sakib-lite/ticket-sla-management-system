@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TicketPriority;
+use App\Support\Sla\SlaPolicies;
 use Database\Factories\SlaPolicyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,14 @@ class SlaPolicy extends Model
 {
     /** @use HasFactory<SlaPolicyFactory> */
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        $flushCache = fn () => app(SlaPolicies::class)->flush();
+
+        static::saved($flushCache);
+        static::deleted($flushCache);
+    }
 
     protected function casts(): array
     {

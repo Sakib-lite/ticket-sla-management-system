@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\SlaStatus;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Support\Sla\SlaDeadlines;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'created_by',
     'assigned_agent_id',
     'sla_due_at',
+    'sla_approaching_at',
     'sla_status',
     'escalated_at',
     'resolved_at',
@@ -42,10 +44,11 @@ class Ticket extends Model
             'priority' => TicketPriority::class,
             'status' => TicketStatus::class,
             'sla_status' => SlaStatus::class,
-            'sla_due_at' => 'datetime',
-            'escalated_at' => 'datetime',
-            'resolved_at' => 'datetime',
-            'closed_at' => 'datetime',
+            'sla_due_at' => 'immutable_datetime',
+            'sla_approaching_at' => 'immutable_datetime',
+            'escalated_at' => 'immutable_datetime',
+            'resolved_at' => 'immutable_datetime',
+            'closed_at' => 'immutable_datetime',
             'resolved_within_sla' => 'boolean',
         ];
     }
@@ -84,6 +87,14 @@ class Ticket extends Model
     public function attachments(): MorphMany
     {
         return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    public function slaDeadlines(): SlaDeadlines
+    {
+        return new SlaDeadlines(
+            approachingAt: $this->sla_approaching_at,
+            dueAt: $this->sla_due_at,
+        );
     }
 
     public function isAssigned(): bool

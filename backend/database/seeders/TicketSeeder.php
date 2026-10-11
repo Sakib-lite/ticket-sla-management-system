@@ -10,11 +10,13 @@ use App\Models\Category;
 use App\Models\Ticket;
 use App\Models\TicketActivity;
 use App\Models\TicketReply;
-use App\Models\TicketSequence;
 use App\Models\User;
+use App\Support\Sla\SlaCalculator;
+use App\Support\Tickets\TicketNumberGenerator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TicketSeeder extends Seeder
 {
@@ -27,6 +29,11 @@ class TicketSeeder extends Seeder
         'General' => ['How do I change my notification settings?', 'Request for a second screen'],
     ];
 
+    public function __construct(
+        private readonly TicketNumberGenerator $ticketNumbers,
+        private readonly SlaCalculator $sla,
+    ) {}
+
     public function run(): void
     {
         if (Ticket::exists()) {
@@ -37,31 +44,44 @@ class TicketSeeder extends Seeder
         $agents = User::agents()->get();
         $categories = Category::all()->keyBy('name');
 
-        $sequence = 0;
-
         foreach (self::SUBJECTS as $categoryName => $subjects) {
             foreach ($subjects as $subject) {
-                $createdAt = Carbon::now()->subDays(fake()->numberBetween(0, 20))->subHours(fake()->numberBetween(0, 9));
+                $createdAt = Carbon::now()->subHours(fake()->numberBetween(1, 96));
                 $priority = fake()->randomElement(TicketPriority::cases());
                 $customer = $customers->random();
+                $deadlines = $this->sla->deadlines($priority, $createdAt);
 
-                $ticket = Ticket::factory()->createdBy($customer)->create([
-                    'ticket_number' => sprintf('TKT-%d-%06d', $createdAt->year, ++$sequence),
+                $ticket = DB::transaction(fn () => Ticket::factory()->createdBy($customer)->create([
+                    'ticket_number' => $this->ticketNumbers->next($createdAt),
                     'subject' => $subject,
                     'priority' => $priority,
                     'category_id' => $categories[$categoryName]->id,
                     'status' => TicketStatus::Open,
-                    'sla_due_at' => $createdAt->copy()->addHours(SlaPolicySeeder::RESOLUTION_HOURS[$priority->value]),
+                    'sla_due_at' => $deadlines->dueAt,
+                    'sla_approaching_at' => $deadlines->approachingAt,
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
-                ]);
+                ]));
 
                 $this->record($ticket, ActivityType::Created, $customer, at: $createdAt);
                 $this->progress($ticket, $agents, $customer, $createdAt);
+                $this->refreshSlaStatus($ticket);
             }
         }
+    }
 
-        TicketSequence::updateOrCreate(['year' => now()->year], ['last_number' => $sequence]);
+    private function refreshSlaStatus(Ticket $ticket): void
+    {
+        if ($ticket->status->isFinished()) {
+            return;
+        }
+
+        $slaStatus = $this->sla->statusFor($ticket);
+
+        $ticket->update([
+            'sla_status' => $slaStatus,
+            'escalated_at' => $slaStatus === SlaStatus::Breached ? $ticket->sla_due_at : null,
+        ]);
     }
 
     private function progress(Ticket $ticket, Collection $agents, User $customer, Carbon $createdAt): void

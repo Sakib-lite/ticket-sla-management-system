@@ -25,6 +25,7 @@ class TicketFactory extends Factory
             'created_by' => User::factory(),
             'assigned_agent_id' => null,
             'sla_due_at' => now()->addHours(24),
+            'sla_approaching_at' => now()->addHours(19),
             'sla_status' => SlaStatus::Within,
         ];
     }
@@ -85,6 +86,7 @@ class TicketFactory extends Factory
     {
         return $this->state(fn () => [
             'sla_status' => SlaStatus::Approaching,
+            'sla_approaching_at' => now()->subMinutes(30),
             'sla_due_at' => now()->addMinutes(30),
         ]);
     }
@@ -93,6 +95,7 @@ class TicketFactory extends Factory
     {
         return $this->state(fn () => [
             'sla_status' => SlaStatus::Breached,
+            'sla_approaching_at' => now()->subHours(2),
             'sla_due_at' => now()->subHour(),
             'escalated_at' => now()->subHour(),
         ]);
