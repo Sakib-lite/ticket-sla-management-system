@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Plus } from "@phosphor-icons/react";
 import { Button, Loader, PageHeader, Pagination } from "@/components";
 import { NEW_TICKET_PATH } from "@/constants/paths";
+import { useAgents } from "@/hooks/useAgents";
 import { useCategories } from "@/hooks/useCategories";
+import { useAuthStore } from "@/stores/useAuthStore";
 import TicketFilterBar from "./fragments/TicketFilterBar";
 import TicketTable from "./fragments/TicketTable";
 import { useTicketFilters } from "./useTicketFilters";
@@ -15,6 +17,11 @@ function TicketsPage() {
   const { filters, update, reset, hasActiveFilters } = useTicketFilters();
   const { tickets, meta, isLoading } = useTickets(filters);
   const { options: categoryOptions } = useCategories();
+  const { agents } = useAgents();
+  const isStaff = useAuthStore((state) => state.user?.role !== "customer");
+  const agentOptions = isStaff
+    ? agents.map((agent) => ({ label: agent.name, value: String(agent.id) }))
+    : null;
 
   return (
     <div className="space-y-6">
@@ -32,6 +39,7 @@ function TicketsPage() {
       <TicketFilterBar
         filters={filters}
         categoryOptions={categoryOptions}
+        agentOptions={agentOptions}
         hasActiveFilters={hasActiveFilters}
         onChange={update}
         onReset={reset}

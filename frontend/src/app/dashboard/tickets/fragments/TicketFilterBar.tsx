@@ -23,6 +23,7 @@ const SEARCH_DEBOUNCE_MS = 350;
 type TicketFilterBarProps = {
   filters: TicketListParams;
   categoryOptions: Option[];
+  agentOptions: Option[] | null;
   hasActiveFilters: boolean;
   onChange: (changes: Partial<TicketListParams>) => void;
   onReset: () => void;
@@ -31,6 +32,7 @@ type TicketFilterBarProps = {
 export default function TicketFilterBar({
   filters,
   categoryOptions,
+  agentOptions,
   hasActiveFilters,
   onChange,
   onReset,
@@ -86,7 +88,7 @@ export default function TicketFilterBar({
           />
         </label>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <Form.SelectField
           label="Status"
           value={filters.status ?? ""}
@@ -117,6 +119,15 @@ export default function TicketFilterBar({
           options={SLA_STATUS_OPTIONS}
           onChange={(event) => onChange({ sla_status: (event.target.value || undefined) as never })}
         />
+        {agentOptions && (
+          <Form.SelectField
+            label="Assignee"
+            value={filters.assignee ?? ""}
+            placeholder="Anyone"
+            options={[{ label: "Unassigned", value: "unassigned" }, ...agentOptions]}
+            onChange={(event) => onChange({ assignee: event.target.value || undefined })}
+          />
+        )}
         <div className="flex items-end">
           {hasActiveFilters && (
             <button

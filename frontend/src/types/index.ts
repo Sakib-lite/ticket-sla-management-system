@@ -66,3 +66,11 @@ export type RequestFailure = {
   message: string;
   errors: FieldErrors;
 };
+
+export type Agent = {
+  id: number;
+  name: string;
+  email: string;
+  is_available: boolean;
+  active_tickets_count: number;
+};

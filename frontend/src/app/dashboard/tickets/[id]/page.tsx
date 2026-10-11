@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { Button, EmptyState, Loader } from "@/components";
 import { TICKETS_PATH } from "@/constants/paths";
+import { useAgents } from "@/hooks/useAgents";
 import { useCategories } from "@/hooks/useCategories";
 import EditTicketModal from "./fragments/EditTicketModal";
+import TicketAssignmentPanel from "./fragments/TicketAssignmentPanel";
 import TicketHeader from "./fragments/TicketHeader";
 import TicketMetaPanel from "./fragments/TicketMetaPanel";
 import TicketStatusActions from "./fragments/TicketStatusActions";
@@ -13,6 +15,7 @@ import { useTicketDetail } from "./useTicketDetail";
 export default function TicketDetailPage() {
   const detail = useTicketDetail();
   const { options: categoryOptions } = useCategories();
+  const { options: agentOptions, refresh: refreshAgents } = useAgents();
 
   if (detail.isLoading) {
     return (
@@ -56,13 +59,24 @@ export default function TicketDetailPage() {
             </section>
           )}
         </div>
-        <TicketMetaPanel
-          ticket={ticket}
-          categoryOptions={categoryOptions}
-          canChangePriority={permissions.canChangePriority}
-          onPriorityChange={(priority) => detail.update({ priority })}
-          onCategoryChange={(category_id) => detail.update({ category_id })}
-        />
+        <div className="space-y-6">
+          <TicketAssignmentPanel
+            ticket={ticket}
+            agentOptions={agentOptions}
+            canAssign={permissions.canAssign}
+            canClaim={permissions.canClaim}
+            onAssign={(agentId) => detail.assign(agentId).then(refreshAgents)}
+            onClaim={() => detail.claim().then(refreshAgents)}
+            onUnassign={() => detail.unassign().then(refreshAgents)}
+          />
+          <TicketMetaPanel
+            ticket={ticket}
+            categoryOptions={categoryOptions}
+            canChangePriority={permissions.canChangePriority}
+            onPriorityChange={(priority) => detail.update({ priority })}
+            onCategoryChange={(category_id) => detail.update({ category_id })}
+          />
+        </div>
       </div>
       {detail.isEditing && (
         <EditTicketModal

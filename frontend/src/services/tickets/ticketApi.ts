@@ -52,3 +52,18 @@ export const changeStatus = async (id: number, status: TicketStatus) => {
   const response = await api.post<Ticket>(`/tickets/${id}/status`, { status });
   return response.data;
 };
+
+export const assign = async (id: number, agentId: number) => {
+  const response = await api.post<Ticket>(`/tickets/${id}/assign`, { agent_id: agentId });
+  return response.data;
+};
+
+export const claim = async (id: number) => {
+  const response = await api.post<Ticket>(`/tickets/${id}/claim`);
+  return response.data;
+};
+
+export const unassign = async (id: number) => {
+  const response = await api.delete<Ticket>(`/tickets/${id}/assignment`);
+  return response.data;
+};
