@@ -18,6 +18,8 @@ class TicketController extends Controller
 
     private const RELATIONS = ['category', 'creator', 'assignee'];
 
+    private const DETAIL_RELATIONS = [...self::RELATIONS, 'attachments'];
+
     public function __construct(private readonly TicketService $tickets) {}
 
     public function index(IndexTicketsRequest $request): AnonymousResourceCollection
@@ -35,22 +37,27 @@ class TicketController extends Controller
 
     public function store(StoreTicketRequest $request): TicketResource
     {
-        $ticket = $this->tickets->create($request->user(), $request->customer(), $request->ticketAttributes());
+        $ticket = $this->tickets->create(
+            $request->user(),
+            $request->customer(),
+            $request->ticketAttributes(),
+            $request->files(),
+        );
 
-        return TicketResource::make($ticket->load(self::RELATIONS));
+        return TicketResource::make($ticket->load(self::DETAIL_RELATIONS));
     }
 
     public function show(Ticket $ticket): TicketResource
     {
         $this->authorize('view', $ticket);
 
-        return TicketResource::make($ticket->load(self::RELATIONS));
+        return TicketResource::make($ticket->load(self::DETAIL_RELATIONS));
     }
 
     public function update(UpdateTicketRequest $request, Ticket $ticket): TicketResource
     {
         $ticket = $this->tickets->update($ticket, $request->user(), $request->validated());
 
-        return TicketResource::make($ticket->load(self::RELATIONS));
+        return TicketResource::make($ticket->load(self::DETAIL_RELATIONS));
     }
 }

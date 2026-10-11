@@ -3,13 +3,17 @@
 namespace App\Http\Requests;
 
 use App\Enums\TicketPriority;
+use App\Http\Requests\Concerns\ValidatesAttachments;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 class StoreTicketRequest extends FormRequest
 {
+    use ValidatesAttachments;
+
     public function authorize(): bool
     {
         return $this->user()->can('create', Ticket::class);
@@ -28,6 +32,7 @@ class StoreTicketRequest extends FormRequest
                 'integer',
                 Rule::exists('users', 'id')->where('role', 'customer'),
             ],
+            ...$this->attachmentRules(),
         ];
     }
 
@@ -42,5 +47,11 @@ class StoreTicketRequest extends FormRequest
     public function ticketAttributes(): array
     {
         return $this->safe()->only(['subject', 'description', 'priority', 'category_id']);
+    }
+
+    /** @return list<UploadedFile> */
+    public function files(): array
+    {
+        return $this->uploadedFiles();
     }
 }

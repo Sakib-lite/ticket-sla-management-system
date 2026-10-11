@@ -6,6 +6,7 @@ use App\Services\ActivityRecorder;
 use App\Services\Assignment\AgentAssigner;
 use App\Services\Assignment\AssignmentService;
 use App\Services\Assignment\LeastWorkloadAssigner;
+use App\Services\Attachments\AttachmentService;
 use App\Support\BusinessHours\BusinessSchedule;
 use App\Support\Tickets\TicketNumberGenerator;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
         ));
 
         $this->app->bind(AgentAssigner::class, LeastWorkloadAssigner::class);
+
+        $this->app->bind(AttachmentService::class, fn ($app) => new AttachmentService(
+            activities: $app->make(ActivityRecorder::class),
+            disk: config('attachments.disk'),
+        ));
 
         $this->app->bind(AssignmentService::class, fn ($app) => new AssignmentService(
             assigner: $app->make(AgentAssigner::class),

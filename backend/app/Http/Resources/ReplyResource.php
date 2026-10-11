@@ -17,6 +17,7 @@ class ReplyResource extends JsonResource
             'body' => $this->body,
             'is_internal' => $this->is_internal,
             'author' => UserResource::make($this->whenLoaded('author')),
+            'attachments' => AttachmentResource::collection($this->whenLoaded('attachments')),
             'created_at' => $this->created_at,
         ];
     }

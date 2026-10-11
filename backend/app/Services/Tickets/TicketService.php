@@ -11,8 +11,10 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Services\ActivityRecorder;
 use App\Services\Assignment\AssignmentService;
+use App\Services\Attachments\AttachmentService;
 use App\Support\Sla\SlaCalculator;
 use App\Support\Tickets\TicketNumberGenerator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 final readonly class TicketService
@@ -22,12 +24,16 @@ final readonly class TicketService
         private SlaCalculator $sla,
         private ActivityRecorder $activities,
         private AssignmentService $assignments,
+        private AttachmentService $attachments,
     ) {}
 
-    /** @param  array{subject: string, description: string, priority: string, category_id: int}  $attributes */
-    public function create(User $creator, User $customer, array $attributes): Ticket
+    /**
+     * @param  array{subject: string, description: string, priority: string, category_id: int}  $attributes
+     * @param  list<UploadedFile>  $files
+     */
+    public function create(User $creator, User $customer, array $attributes, array $files = []): Ticket
     {
-        return DB::transaction(function () use ($creator, $customer, $attributes) {
+        return DB::transaction(function () use ($creator, $customer, $attributes, $files) {
             $priority = TicketPriority::from($attributes['priority']);
             $deadlines = $this->sla->deadlines($priority, now());
 
@@ -45,6 +51,7 @@ final readonly class TicketService
             ]);
 
             $this->activities->record($ticket, ActivityType::Created, $creator);
+            $this->attachments->attach($ticket, $creator, $files);
             $this->assignments->autoAssign($ticket);
 
             return $ticket;

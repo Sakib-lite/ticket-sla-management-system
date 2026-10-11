@@ -21,6 +21,7 @@ class TicketResource extends JsonResource
             'category' => CategoryResource::make($this->whenLoaded('category')),
             'creator' => UserResource::make($this->whenLoaded('creator')),
             'assignee' => UserResource::make($this->whenLoaded('assignee')),
+            'attachments' => AttachmentResource::collection($this->whenLoaded('attachments')),
             'sla' => [
                 'status' => $this->liveSlaStatus()->value,
                 'due_at' => $this->sla_due_at,

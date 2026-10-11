@@ -33,4 +33,14 @@ class Attachment extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    public function ticket(): Ticket
+    {
+        return $this->attachable instanceof Ticket ? $this->attachable : $this->attachable->ticket;
+    }
+
+    public function isInternal(): bool
+    {
+        return $this->attachable instanceof TicketReply && $this->attachable->is_internal;
+    }
 }

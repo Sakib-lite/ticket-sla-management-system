@@ -136,7 +136,7 @@ class ReplyTest extends TestCase
         $second = TicketReply::factory()->for($ticket)->create(['created_at' => now()->subMinutes(5)]);
         $this->actingAs(User::factory()->agent()->create());
 
-        $this->expectsDatabaseQueryCount(3);
+        $this->expectsDatabaseQueryCount(4);
 
         $response = $this->getJson("/api/tickets/{$ticket->id}/replies")->assertOk();
 

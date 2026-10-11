@@ -41,6 +41,11 @@ class TicketPolicy
         return $user->isStaff();
     }
 
+    public function attach(User $user, Ticket $ticket): bool
+    {
+        return $this->view($user, $ticket) && $ticket->status->isActive();
+    }
+
     public function assign(User $user, Ticket $ticket): bool
     {
         return $user->isStaff();

@@ -16,6 +16,8 @@ class TicketReplyController extends Controller
 {
     use AuthorizesRequests;
 
+    private const RELATIONS = ['author', 'attachments'];
+
     public function __construct(private readonly ReplyService $replies) {}
 
     public function index(Request $request, Ticket $ticket): AnonymousResourceCollection
@@ -24,7 +26,7 @@ class TicketReplyController extends Controller
 
         $replies = $ticket->replies()
             ->visibleTo($request->user())
-            ->with('author')
+            ->with(self::RELATIONS)
             ->orderBy('created_at')
             ->orderBy('id')
             ->get();
@@ -39,8 +41,9 @@ class TicketReplyController extends Controller
             $request->user(),
             $request->validated('body'),
             $request->isInternal(),
+            $request->files(),
         );
 
-        return ReplyResource::make($reply->load('author'));
+        return ReplyResource::make($reply->load(self::RELATIONS));
     }
 }
