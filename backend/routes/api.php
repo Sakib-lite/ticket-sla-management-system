@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\TicketActivityController;
 use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketReplyController;
@@ -29,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('tickets/{ticket}/replies', [TicketReplyController::class, 'index']);
     Route::post('tickets/{ticket}/replies', [TicketReplyController::class, 'store']);
     Route::post('tickets/{ticket}/attachments', [AttachmentController::class, 'store']);
+    Route::get('tickets/{ticket}/activities', [TicketActivityController::class, 'index']);
     Route::get('attachments/{attachment}/download', [AttachmentController::class, 'download']);
     Route::delete('attachments/{attachment}', [AttachmentController::class, 'destroy']);
 });
