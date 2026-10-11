@@ -12,6 +12,7 @@ import TicketConversation from "./fragments/TicketConversation";
 import TicketHeader from "./fragments/TicketHeader";
 import TicketMetaPanel from "./fragments/TicketMetaPanel";
 import TicketStatusActions from "./fragments/TicketStatusActions";
+import TicketTimeline from "./fragments/TicketTimeline";
 import { useTicketDetail } from "./useTicketDetail";
 
 export default function TicketDetailPage() {
@@ -67,7 +68,14 @@ export default function TicketDetailPage() {
               <TicketStatusActions status={ticket.status} onChange={detail.changeStatus} />
             </section>
           )}
-          <TicketConversation ticket={ticket} onReplied={detail.refresh} />
+          <TicketConversation
+            ticket={ticket}
+            onReplied={() => {
+              detail.refresh();
+              detail.touch();
+            }}
+            onNoted={detail.touch}
+          />
         </div>
         <div className="space-y-6">
           <TicketAssignmentPanel
@@ -86,6 +94,7 @@ export default function TicketDetailPage() {
             onPriorityChange={(priority) => detail.update({ priority })}
             onCategoryChange={(category_id) => detail.update({ category_id })}
           />
+          <TicketTimeline ticketId={ticket.id} version={detail.activityVersion} />
         </div>
       </div>
       {detail.isEditing && (

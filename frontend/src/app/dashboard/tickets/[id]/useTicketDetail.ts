@@ -23,6 +23,8 @@ export const useTicketDetail = () => {
     refresh,
   } = useFetch(() => ticketApi.show(id), `ticket:${id}`);
   const [isEditing, setIsEditing] = useState(false);
+  const [activityVersion, setActivityVersion] = useState(0);
+  const touch = () => setActivityVersion((current) => current + 1);
 
   const isStaff = user?.role !== "customer";
   const isOwner = ticket?.creator.id === user?.id;
@@ -42,6 +44,7 @@ export const useTicketDetail = () => {
   const apply = async (action: () => Promise<Ticket>, successMessage: string) => {
     try {
       setData(await action());
+      touch();
       notify.success(successMessage);
     } catch (failure) {
       const { status, message } = failure as RequestFailure;
@@ -76,6 +79,7 @@ export const useTicketDetail = () => {
     try {
       const uploaded = await attachmentApi.upload(ticket.id, files);
       setData({ ...ticket, attachments: [...(ticket.attachments ?? []), ...uploaded] });
+      touch();
       notify.success(`${uploaded.length} file${uploaded.length === 1 ? "" : "s"} attached.`);
     } catch (failure) {
       notify.error((failure as RequestFailure).message);
@@ -130,6 +134,8 @@ export const useTicketDetail = () => {
     error,
     isLoading,
     refresh,
+    activityVersion,
+    touch,
     permissions,
     isEditing,
     openEditor: () => setIsEditing(true),

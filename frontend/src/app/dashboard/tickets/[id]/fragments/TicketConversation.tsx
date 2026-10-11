@@ -11,6 +11,7 @@ import { useTicketReplies } from "../useTicketReplies";
 type TicketConversationProps = {
   ticket: Ticket;
   onReplied: () => void;
+  onNoted: () => void;
 };
 
 function ReplyBubble({ reply, isMine }: { reply: Reply; isMine: boolean }) {
@@ -50,7 +51,11 @@ function ReplyBubble({ reply, isMine }: { reply: Reply; isMine: boolean }) {
   );
 }
 
-export default function TicketConversation({ ticket, onReplied }: TicketConversationProps) {
+export default function TicketConversation({
+  ticket,
+  onReplied,
+  onNoted,
+}: TicketConversationProps) {
   const user = useAuthStore((state) => state.user);
   const { replies, isLoading, add } = useTicketReplies(ticket.id);
   const canWriteInternal = user?.role !== "customer";
@@ -84,7 +89,9 @@ export default function TicketConversation({ ticket, onReplied }: TicketConversa
           canWriteInternal={canWriteInternal}
           onSubmit={async (payload, files) => {
             await add(payload, files);
-            if (!payload.is_internal) {
+            if (payload.is_internal) {
+              onNoted();
+            } else {
               onReplied();
             }
           }}

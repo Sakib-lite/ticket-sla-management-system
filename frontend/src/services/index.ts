@@ -1,3 +1,4 @@
+export * as activityApi from "./tickets/activityApi";
 export * as agentApi from "./agents/agentApi";
 export * as attachmentApi from "./tickets/attachmentApi";
 export * as authApi from "./auth/authApi";

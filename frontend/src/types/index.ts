@@ -94,3 +94,29 @@ export type Attachment = {
   uploaded_by: number;
   created_at: string;
 };
+
+export type ActivityType =
+  | "created"
+  | "imported"
+  | "assigned"
+  | "auto_assigned"
+  | "claimed"
+  | "unassigned"
+  | "status_changed"
+  | "priority_changed"
+  | "category_changed"
+  | "subject_changed"
+  | "reply_added"
+  | "note_added"
+  | "attachment_added"
+  | "sla_approaching"
+  | "escalated";
+
+export type Activity = {
+  id: number;
+  type: ActivityType;
+  description: string;
+  actor: User | null;
+  payload: Record<string, unknown> | null;
+  created_at: string;
+};
