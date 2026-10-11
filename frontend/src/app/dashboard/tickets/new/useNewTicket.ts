@@ -12,6 +12,7 @@ export type NewTicketForm = {
   description: string;
   priority: TicketPriority | "";
   category_id: string;
+  files: File[];
 };
 
 const emptyForm: NewTicketForm = {
@@ -19,6 +20,7 @@ const emptyForm: NewTicketForm = {
   description: "",
   priority: "medium",
   category_id: "",
+  files: [],
 };
 
 export const useNewTicket = () => {
@@ -36,12 +38,15 @@ export const useNewTicket = () => {
     setErrors({});
 
     try {
-      const ticket = await ticketApi.create({
-        subject: form.subject,
-        description: form.description,
-        priority: form.priority as TicketPriority,
-        category_id: Number(form.category_id),
-      });
+      const ticket = await ticketApi.create(
+        {
+          subject: form.subject,
+          description: form.description,
+          priority: form.priority as TicketPriority,
+          category_id: Number(form.category_id),
+        },
+        form.files
+      );
       notify.success(`Ticket ${ticket.ticket_number} created.`);
       router.push(ticketPath(ticket.id));
     } catch (failure) {

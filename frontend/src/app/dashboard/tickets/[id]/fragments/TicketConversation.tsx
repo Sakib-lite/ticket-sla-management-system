@@ -1,7 +1,7 @@
 "use client";
 
 import { LockSimple } from "@phosphor-icons/react";
-import { Loader } from "@/components";
+import { AttachmentList, Loader } from "@/components";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { Reply, Ticket } from "@/types";
 import { classNames, formatDateTime } from "@/utils";
@@ -41,6 +41,11 @@ function ReplyBubble({ reply, isMine }: { reply: Reply; isMine: boolean }) {
         )}
       </header>
       <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-800">{reply.body}</p>
+      {reply.attachments && reply.attachments.length > 0 && (
+        <div className="mt-3">
+          <AttachmentList attachments={reply.attachments} />
+        </div>
+      )}
     </article>
   );
 }
@@ -77,8 +82,8 @@ export default function TicketConversation({ ticket, onReplied }: TicketConversa
       ) : (
         <ReplyComposer
           canWriteInternal={canWriteInternal}
-          onSubmit={async (payload) => {
-            await add(payload);
+          onSubmit={async (payload, files) => {
+            await add(payload, files);
             if (!payload.is_internal) {
               onReplied();
             }

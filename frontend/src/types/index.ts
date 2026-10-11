@@ -38,6 +38,7 @@ export type Ticket = {
   category: Category;
   creator: User;
   assignee: User | null;
+  attachments?: Attachment[];
   sla: TicketSla;
   resolved_at: string | null;
   closed_at: string | null;
@@ -81,5 +82,15 @@ export type Reply = {
   body: string;
   is_internal: boolean;
   author: User;
+  attachments?: Attachment[];
+  created_at: string;
+};
+
+export type Attachment = {
+  id: number;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  uploaded_by: number;
   created_at: string;
 };

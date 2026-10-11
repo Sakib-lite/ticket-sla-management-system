@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button, Form } from "@/components";
 import { TICKETS_PATH } from "@/constants/paths";
 import { TICKET_PRIORITY_OPTIONS, type Option } from "@/constants/tickets";
+import { attachmentApi } from "@/services";
 import type { FieldErrors } from "@/types";
 import type { NewTicketForm } from "../useNewTicket";
 
@@ -60,6 +61,15 @@ export default function TicketForm({
           onChange={(event) => onFieldChange("category_id", event.target.value)}
         />
       </div>
+      <Form.FileField
+        label="Attachments"
+        files={form.files}
+        accept={attachmentApi.ACCEPTED_FILE_TYPES}
+        maxFiles={attachmentApi.MAX_FILES}
+        maxBytes={attachmentApi.MAX_FILE_BYTES}
+        error={Object.entries(errors).find(([key]) => key.startsWith("files"))?.[1]?.[0]}
+        onChange={(files) => onFieldChange("files", files)}
+      />
       <div className="flex justify-end gap-2">
         <Link href={TICKETS_PATH}>
           <Button.Primary type="button" tone="ghost">

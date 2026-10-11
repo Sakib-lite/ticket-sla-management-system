@@ -1,4 +1,5 @@
 export * as agentApi from "./agents/agentApi";
+export * as attachmentApi from "./tickets/attachmentApi";
 export * as authApi from "./auth/authApi";
 export * as categoryApi from "./categories/categoryApi";
 export * as replyApi from "./tickets/replyApi";

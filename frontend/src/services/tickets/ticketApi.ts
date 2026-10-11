@@ -1,5 +1,6 @@
 import api from "@/api";
 import type { Paginated, SlaStatus, Ticket, TicketPriority, TicketStatus } from "@/types";
+import { appendFiles } from "./attachmentApi";
 
 export type TicketView = "active" | "resolved" | "all";
 
@@ -38,8 +39,10 @@ export const show = async (idOrNumber: number | string) => {
   return response.data;
 };
 
-export const create = async (payload: TicketPayload) => {
-  const response = await api.post<Ticket>("/tickets", payload);
+export const create = async (payload: TicketPayload, files: File[] = []) => {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, value]) => form.append(key, String(value)));
+  const response = await api.post<Ticket>("/tickets", appendFiles(form, files));
   return response.data;
 };
 

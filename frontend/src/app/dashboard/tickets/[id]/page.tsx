@@ -7,6 +7,7 @@ import { useAgents } from "@/hooks/useAgents";
 import { useCategories } from "@/hooks/useCategories";
 import EditTicketModal from "./fragments/EditTicketModal";
 import TicketAssignmentPanel from "./fragments/TicketAssignmentPanel";
+import TicketAttachments from "./fragments/TicketAttachments";
 import TicketConversation from "./fragments/TicketConversation";
 import TicketHeader from "./fragments/TicketHeader";
 import TicketMetaPanel from "./fragments/TicketMetaPanel";
@@ -53,6 +54,13 @@ export default function TicketDetailPage() {
               {ticket.description}
             </p>
           </section>
+          <TicketAttachments
+            attachments={ticket.attachments ?? []}
+            canAttach={permissions.canAttach}
+            canDelete={permissions.canDeleteAttachment}
+            onUpload={detail.uploadAttachments}
+            onDelete={detail.removeAttachment}
+          />
           {permissions.canChangeStatus && (
             <section className="rounded-lg border border-slate-200 bg-white p-5">
               <h2 className="mb-3 text-sm font-semibold text-slate-900">Update status</h2>

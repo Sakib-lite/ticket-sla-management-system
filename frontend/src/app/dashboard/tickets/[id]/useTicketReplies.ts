@@ -11,9 +11,9 @@ export const useTicketReplies = (ticketId: number) => {
     `ticket:${ticketId}:replies`
   );
 
-  const add = async (payload: ReplyPayload) => {
+  const add = async (payload: ReplyPayload, files: File[]) => {
     try {
-      const reply = await replyApi.create(ticketId, payload);
+      const reply = await replyApi.create(ticketId, payload, files);
       setData([...(data ?? []), reply]);
       notify.success(payload.is_internal ? "Internal note added." : "Reply sent.");
     } catch (failure) {

@@ -6,9 +6,9 @@ import { STATUS_ACTION_LABELS, isFinishedStatus } from "@/constants/tickets";
 import { confirmAction } from "@/hooks/useConfirm";
 import { useFetch } from "@/hooks/useFetch";
 import { notify } from "@/hooks/useNotify";
-import { ticketApi, type TicketUpdatePayload } from "@/services";
+import { attachmentApi, ticketApi, type TicketUpdatePayload } from "@/services";
 import { useAuthStore } from "@/stores/useAuthStore";
-import type { RequestFailure, Ticket, TicketStatus } from "@/types";
+import type { Attachment, RequestFailure, Ticket, TicketStatus } from "@/types";
 
 const CONFIRMED_STATUSES: TicketStatus[] = ["resolved", "closed"];
 
@@ -30,6 +30,9 @@ export const useTicketDetail = () => {
 
   const permissions = {
     canEdit: isStaff || (isOwner && isActive),
+    canAttach: isActive && (isStaff || isOwner),
+    canDeleteAttachment: (attachment: Attachment) =>
+      isActive && (user?.role === "administrator" || attachment.uploaded_by === user?.id),
     canChangePriority: isStaff,
     canChangeStatus: isStaff,
     canAssign: isStaff,
@@ -65,6 +68,36 @@ export const useTicketDetail = () => {
 
   const unassign = () =>
     ticket ? apply(() => ticketApi.unassign(ticket.id), "Ticket unassigned.") : Promise.resolve();
+
+  const uploadAttachments = async (files: File[]) => {
+    if (!ticket) {
+      return;
+    }
+    try {
+      const uploaded = await attachmentApi.upload(ticket.id, files);
+      setData({ ...ticket, attachments: [...(ticket.attachments ?? []), ...uploaded] });
+      notify.success(`${uploaded.length} file${uploaded.length === 1 ? "" : "s"} attached.`);
+    } catch (failure) {
+      notify.error((failure as RequestFailure).message);
+      throw failure;
+    }
+  };
+
+  const removeAttachment = async (attachmentId: number) => {
+    if (!ticket) {
+      return;
+    }
+    try {
+      await attachmentApi.remove(attachmentId);
+      setData({
+        ...ticket,
+        attachments: (ticket.attachments ?? []).filter((item) => item.id !== attachmentId),
+      });
+      notify.success("Attachment removed.");
+    } catch (failure) {
+      notify.error((failure as RequestFailure).message);
+    }
+  };
 
   const changeStatus = async (status: TicketStatus) => {
     if (!ticket) {
@@ -105,6 +138,8 @@ export const useTicketDetail = () => {
     assign,
     claim,
     unassign,
+    uploadAttachments,
+    removeAttachment,
     changeStatus,
   };
 };
