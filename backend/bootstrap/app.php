@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Tickets\InvalidStatusTransitionException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,4 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(fn (InvalidStatusTransitionException $exception) => response()->json([
+            'message' => $exception->getMessage(),
+            'errors' => ['status' => [$exception->getMessage()]],
+        ], 422));
     })->create();

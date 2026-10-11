@@ -6,6 +6,8 @@ use App\Enums\SlaStatus;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Support\Sla\SlaDeadlines;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,6 +40,8 @@ class Ticket extends Model
     /** @use HasFactory<TicketFactory> */
     use HasFactory;
 
+    private const NUMBER_PATTERN = '/^[A-Z]+-\d{4}-\d+$/i';
+
     protected function casts(): array
     {
         return [
@@ -51,6 +55,15 @@ class Ticket extends Model
             'closed_at' => 'immutable_datetime',
             'resolved_within_sla' => 'boolean',
         ];
+    }
+
+    public function resolveRouteBinding($value, $field = null): ?self
+    {
+        if ($field === null && preg_match(self::NUMBER_PATTERN, (string) $value)) {
+            return $this->where('ticket_number', strtoupper($value))->first();
+        }
+
+        return parent::resolveRouteBinding($value, $field);
     }
 
     /** @return BelongsTo<Category, $this> */
@@ -97,6 +110,15 @@ class Ticket extends Model
         );
     }
 
+    public function liveSlaStatus(?CarbonInterface $now = null): SlaStatus
+    {
+        if ($this->status->isFinished()) {
+            return $this->sla_status;
+        }
+
+        return $this->slaDeadlines()->statusAt($now ?? CarbonImmutable::now());
+    }
+
     public function isAssigned(): bool
     {
         return $this->assigned_agent_id !== null;
@@ -105,6 +127,24 @@ class Ticket extends Model
     public function isEscalated(): bool
     {
         return $this->escalated_at !== null;
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->created_by === $user->id;
+    }
+
+    public function isAssignedTo(User $user): bool
+    {
+        return $this->assigned_agent_id === $user->id;
+    }
+
+    /** @param  Builder<Ticket>  $query */
+    public function scopeVisibleTo(Builder $query, User $user): void
+    {
+        if ($user->isCustomer()) {
+            $query->where('created_by', $user->id);
+        }
     }
 
     /** @param  Builder<Ticket>  $query */

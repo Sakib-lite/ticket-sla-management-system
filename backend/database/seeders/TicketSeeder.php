@@ -76,7 +76,7 @@ class TicketSeeder extends Seeder
             return;
         }
 
-        $slaStatus = $this->sla->statusFor($ticket);
+        $slaStatus = $ticket->liveSlaStatus();
 
         $ticket->update([
             'sla_status' => $slaStatus,

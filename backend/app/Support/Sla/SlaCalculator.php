@@ -2,11 +2,8 @@
 
 namespace App\Support\Sla;
 
-use App\Enums\SlaStatus;
 use App\Enums\TicketPriority;
-use App\Models\Ticket;
 use App\Support\BusinessHours\BusinessHoursCalculator;
-use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 final readonly class SlaCalculator
@@ -24,14 +21,5 @@ final readonly class SlaCalculator
             approachingAt: $this->businessHours->addHours($from, $rule->approachingHours()),
             dueAt: $this->businessHours->addHours($from, $rule->resolutionHours),
         );
-    }
-
-    public function statusFor(Ticket $ticket, ?CarbonInterface $now = null): SlaStatus
-    {
-        if ($ticket->status->isFinished()) {
-            return $ticket->sla_status;
-        }
-
-        return $ticket->slaDeadlines()->statusAt($now ?? CarbonImmutable::now());
     }
 }

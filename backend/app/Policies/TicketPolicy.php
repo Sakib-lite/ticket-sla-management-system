@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Ticket;
+use App\Models\User;
+
+class TicketPolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    public function view(User $user, Ticket $ticket): bool
+    {
+        return $user->isStaff() || $ticket->isOwnedBy($user);
+    }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
+    public function update(User $user, Ticket $ticket): bool
+    {
+        if ($user->isStaff()) {
+            return true;
+        }
+
+        return $ticket->isOwnedBy($user) && $ticket->status->isActive();
+    }
+
+    public function changePriority(User $user, Ticket $ticket): bool
+    {
+        return $user->isStaff();
+    }
+
+    public function changeStatus(User $user, Ticket $ticket): bool
+    {
+        return $user->isStaff();
+    }
+}

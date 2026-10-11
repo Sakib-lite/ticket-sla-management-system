@@ -61,8 +61,8 @@ class SlaCalculatorTest extends TestCase
     {
         $ticket = Ticket::factory()->approachingSla()->create(['sla_status' => SlaStatus::Within]);
 
-        $this->assertSame(SlaStatus::Approaching, $this->calculator->statusFor($ticket));
-        $this->assertSame(SlaStatus::Breached, $this->calculator->statusFor($ticket, now()->addHour()));
+        $this->assertSame(SlaStatus::Approaching, $ticket->liveSlaStatus());
+        $this->assertSame(SlaStatus::Breached, $ticket->liveSlaStatus(now()->addHour()));
     }
 
     public function test_finished_tickets_keep_the_status_they_were_resolved_with(): void
@@ -73,6 +73,6 @@ class SlaCalculatorTest extends TestCase
             'sla_approaching_at' => now()->subDays(2),
         ]);
 
-        $this->assertSame(SlaStatus::Within, $this->calculator->statusFor($ticket));
+        $this->assertSame(SlaStatus::Within, $ticket->liveSlaStatus());
     }
 }
