@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { classNames } from "@/utils";
-import { navigationFor } from "./navigationItems";
+import { isNavigationItemActive, navigationFor } from "./navigationItems";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export default function Sidebar({ isOpen, onNavigate }: SidebarProps) {
       </div>
       <nav className="space-y-1 p-3">
         {items.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive = isNavigationItemActive(pathname, item.href);
           return (
             <Link
               key={item.href}

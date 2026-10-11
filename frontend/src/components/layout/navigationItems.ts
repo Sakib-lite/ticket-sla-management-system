@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartBar, Gear, Ticket, Users } from "@phosphor-icons/react";
+import { DASHBOARD_PATH, SETTINGS_PATH, TICKETS_PATH, USERS_PATH } from "@/constants/paths";
 import type { Role } from "@/types";
 
 export type NavigationItem = {
@@ -13,25 +14,25 @@ export type NavigationItem = {
 export const navigationItems: NavigationItem[] = [
   {
     label: "Dashboard",
-    href: "/dashboard",
+    href: DASHBOARD_PATH,
     icon: ChartBar,
     allowedRoles: ["administrator", "agent", "customer"],
   },
   {
     label: "Tickets",
-    href: "/tickets",
+    href: TICKETS_PATH,
     icon: Ticket,
     allowedRoles: ["administrator", "agent", "customer"],
   },
   {
     label: "Users",
-    href: "/users",
+    href: USERS_PATH,
     icon: Users,
     allowedRoles: ["administrator"],
   },
   {
     label: "Settings",
-    href: "/settings",
+    href: SETTINGS_PATH,
     icon: Gear,
     allowedRoles: ["administrator"],
   },
@@ -39,3 +40,6 @@ export const navigationItems: NavigationItem[] = [
 
 export const navigationFor = (role: Role | undefined) =>
   navigationItems.filter((item) => (role ? item.allowedRoles.includes(role) : false));
+
+export const isNavigationItemActive = (pathname: string, href: string) =>
+  pathname === href || pathname.startsWith(`${href}/`);

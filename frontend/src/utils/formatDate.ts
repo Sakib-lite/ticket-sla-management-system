@@ -25,3 +25,11 @@ export const formatTimeAgo = (value: string | Date | null) => {
   const date = toDate(value);
   return isValid(date) ? `${formatDistanceToNowStrict(date)} ago` : "";
 };
+
+export const formatRelativeTime = (value: string | Date | null) => {
+  if (!value) {
+    return "";
+  }
+  const date = toDate(value);
+  return isValid(date) ? formatDistanceToNowStrict(date, { addSuffix: true }) : "";
+};

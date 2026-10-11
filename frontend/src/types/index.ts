@@ -7,14 +7,56 @@ export type User = {
   role: Role;
 };
 
+export type TicketStatus = "open" | "in_progress" | "waiting_for_customer" | "resolved" | "closed";
+
+export type TicketPriority = "low" | "medium" | "high" | "critical";
+
+export type SlaStatus = "within" | "approaching" | "breached";
+
+export type Category = {
+  id: number;
+  name: string;
+  slug: string;
+  is_active: boolean;
+};
+
+export type TicketSla = {
+  status: SlaStatus;
+  due_at: string;
+  approaching_at: string;
+  escalated_at: string | null;
+  resolved_within_sla: boolean | null;
+};
+
+export type Ticket = {
+  id: number;
+  ticket_number: string;
+  subject: string;
+  description: string;
+  priority: TicketPriority;
+  status: TicketStatus;
+  category: Category;
+  creator: User;
+  assignee: User | null;
+  sla: TicketSla;
+  resolved_at: string | null;
+  closed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PaginationMeta = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+};
+
 export type Paginated<T> = {
   data: T[];
-  meta: {
-    currentPage: number;
-    lastPage: number;
-    perPage: number;
-    total: number;
-  };
+  meta: PaginationMeta;
 };
 
 export type FieldErrors = Record<string, string[]>;
