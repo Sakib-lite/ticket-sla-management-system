@@ -170,3 +170,30 @@ export type DashboardData = {
   by_agent?: AgentWorkload[];
   generated_at: string;
 };
+
+export type ImportStatus = "pending" | "processing" | "completed" | "failed";
+
+export type Import = {
+  id: number;
+  original_name: string;
+  status: ImportStatus;
+  progress: number | null;
+  total_rows: number | null;
+  processed_rows: number;
+  imported_rows: number;
+  skipped_rows: number;
+  failed_rows: number;
+  error_message: string | null;
+  user: User;
+  started_at: string | null;
+  finished_at: string | null;
+  created_at: string;
+};
+
+export type ImportError = {
+  id: number;
+  row_number: number;
+  kind: "invalid" | "duplicate";
+  messages: string[];
+  raw: Record<string, string>;
+};

@@ -4,6 +4,7 @@ export * as attachmentApi from "./tickets/attachmentApi";
 export * as authApi from "./auth/authApi";
 export * as categoryApi from "./categories/categoryApi";
 export * as dashboardApi from "./dashboard/dashboardApi";
+export * as importApi from "./imports/importApi";
 export * as notificationApi from "./notifications/notificationApi";
 export * as replyApi from "./tickets/replyApi";
 export * as ticketApi from "./tickets/ticketApi";

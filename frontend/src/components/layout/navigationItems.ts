@@ -1,7 +1,13 @@
 "use client";
 
-import { ChartBar, Gear, Ticket, Users } from "@phosphor-icons/react";
-import { DASHBOARD_PATH, SETTINGS_PATH, TICKETS_PATH, USERS_PATH } from "@/constants/paths";
+import { ChartBar, Gear, Ticket, UploadSimple, Users } from "@phosphor-icons/react";
+import {
+  DASHBOARD_PATH,
+  IMPORTS_PATH,
+  SETTINGS_PATH,
+  TICKETS_PATH,
+  USERS_PATH,
+} from "@/constants/paths";
 import type { Role } from "@/types";
 
 export type NavigationItem = {
@@ -23,6 +29,12 @@ export const navigationItems: NavigationItem[] = [
     href: TICKETS_PATH,
     icon: Ticket,
     allowedRoles: ["administrator", "agent", "customer"],
+  },
+  {
+    label: "Imports",
+    href: IMPORTS_PATH,
+    icon: UploadSimple,
+    allowedRoles: ["administrator", "agent"],
   },
   {
     label: "Users",
