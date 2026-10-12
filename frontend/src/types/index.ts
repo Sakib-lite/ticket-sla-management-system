@@ -144,3 +144,29 @@ export type AppNotification = {
 };
 
 export type NotificationFeed = Paginated<AppNotification> & { unread_count: number };
+
+export type DashboardMetrics = {
+  open: number;
+  unassigned: number;
+  critical: number;
+  breached: number;
+  approaching: number;
+  resolved: number;
+  resolved_last_7_days: number;
+};
+
+export type PriorityBreakdown = { priority: TicketPriority; label: string; total: number };
+
+export type AgentWorkload = {
+  agent_id: number;
+  agent_name: string;
+  total: number;
+  breached: number;
+};
+
+export type DashboardData = {
+  metrics: DashboardMetrics;
+  by_priority: PriorityBreakdown[];
+  by_agent?: AgentWorkload[];
+  generated_at: string;
+};
