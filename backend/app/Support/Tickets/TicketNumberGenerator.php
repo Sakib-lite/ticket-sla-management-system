@@ -17,16 +17,27 @@ final readonly class TicketNumberGenerator
 
     public function next(?CarbonInterface $at = null): string
     {
+        return $this->nextBatch(1, $at)[0];
+    }
+
+    /** @return list<string> */
+    public function nextBatch(int $count, ?CarbonInterface $at = null): array
+    {
         if (DB::transactionLevel() === 0) {
             throw new LogicException('Ticket numbers must be generated inside a database transaction.');
+        }
+
+        if ($count < 1) {
+            return [];
         }
 
         $year = ($at ?? now())->year;
 
         $sequence = $this->lockSequence($year) ?? $this->startSequence($year);
-        $sequence->increment('last_number');
+        $first = $sequence->last_number + 1;
+        $sequence->increment('last_number', $count);
 
-        return $this->format($year, $sequence->last_number);
+        return array_map(fn (int $number) => $this->format($year, $number), range($first, $first + $count - 1));
     }
 
     public function format(int $year, int $number): string

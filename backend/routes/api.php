@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ImportController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\TicketActivityController;
 use App\Http\Controllers\Api\TicketAssignmentController;
@@ -24,6 +25,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('agents', [AgentController::class, 'index']);
+
+    Route::get('imports/template', [ImportController::class, 'template']);
+    Route::get('imports', [ImportController::class, 'index']);
+    Route::post('imports', [ImportController::class, 'store']);
+    Route::get('imports/{import}', [ImportController::class, 'show']);
+    Route::get('imports/{import}/errors', [ImportController::class, 'errors']);
 
     Route::get('notifications', [NotificationController::class, 'index']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
