@@ -5,6 +5,8 @@ export type User = {
   name: string;
   email: string;
   role: Role;
+  is_available?: boolean;
+  created_at?: string;
 };
 
 export type TicketStatus = "open" | "in_progress" | "waiting_for_customer" | "resolved" | "closed";
@@ -196,4 +198,20 @@ export type ImportError = {
   kind: "invalid" | "duplicate";
   messages: string[];
   raw: Record<string, string>;
+};
+
+export type SlaPolicy = {
+  id: number;
+  priority: TicketPriority;
+  label: string;
+  resolution_hours: number;
+  approaching_threshold_percent: number;
+  updated_at: string;
+};
+
+export type BusinessHours = {
+  timezone: string;
+  opens_at: string;
+  closes_at: string;
+  working_days: { day: number; label: string }[];
 };

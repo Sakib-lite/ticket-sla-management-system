@@ -55,3 +55,5 @@ export const toOptions = <T extends string>(labels: Record<T, string>): Option[]
 export const TICKET_STATUS_OPTIONS = toOptions(TICKET_STATUS_LABELS);
 export const TICKET_PRIORITY_OPTIONS = toOptions(TICKET_PRIORITY_LABELS);
 export const SLA_STATUS_OPTIONS = toOptions(SLA_STATUS_LABELS);
+
+export const ROLE_OPTIONS = toOptions(ROLE_LABELS);

@@ -8,6 +8,7 @@ type AuthStore = {
   signIn: (user: User, token: string) => void;
   signOut: () => void;
   setUser: (user: User | null) => void;
+  updateUser: (changes: Partial<User>) => void;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -22,6 +23,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ user: null, isReady: true });
   },
   setUser: (user) => set({ user, isReady: true }),
+  updateUser: (changes) =>
+    set((state) => ({ user: state.user ? { ...state.user, ...changes } : state.user })),
 }));
 
 export const isAdministrator = (user: User | null) => user?.role === "administrator";

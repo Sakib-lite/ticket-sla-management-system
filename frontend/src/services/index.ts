@@ -7,8 +7,11 @@ export * as dashboardApi from "./dashboard/dashboardApi";
 export * as importApi from "./imports/importApi";
 export * as notificationApi from "./notifications/notificationApi";
 export * as replyApi from "./tickets/replyApi";
+export * as settingsApi from "./settings/settingsApi";
 export * as ticketApi from "./tickets/ticketApi";
+export * as userApi from "./users/userApi";
 export type { ReplyPayload } from "./tickets/replyApi";
+export type { SlaPolicyPayload } from "./settings/settingsApi";
 export type {
   TicketListParams,
   TicketPayload,
@@ -16,3 +19,4 @@ export type {
   TicketUpdatePayload,
   TicketView,
 } from "./tickets/ticketApi";
+export type { CreateUserPayload, UpdateUserPayload, UserListParams } from "./users/userApi";
