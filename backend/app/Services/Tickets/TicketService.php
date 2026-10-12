@@ -6,6 +6,8 @@ use App\Enums\ActivityType;
 use App\Enums\SlaStatus;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Events\TicketCreated;
+use App\Events\TicketResolved;
 use App\Models\Category;
 use App\Models\Ticket;
 use App\Models\User;
@@ -33,7 +35,7 @@ final readonly class TicketService
      */
     public function create(User $creator, User $customer, array $attributes, array $files = []): Ticket
     {
-        return DB::transaction(function () use ($creator, $customer, $attributes, $files) {
+        $ticket = DB::transaction(function () use ($creator, $customer, $attributes, $files) {
             $priority = TicketPriority::from($attributes['priority']);
             $deadlines = $this->sla->deadlines($priority, now());
 
@@ -56,6 +58,10 @@ final readonly class TicketService
 
             return $ticket;
         }, attempts: 3);
+
+        TicketCreated::dispatch($ticket, $creator);
+
+        return $ticket;
     }
 
     /** @param  array{subject?: string, description?: string, priority?: string, category_id?: int}  $attributes */
@@ -90,7 +96,7 @@ final readonly class TicketService
             throw new InvalidStatusTransitionException($ticket->status, $status);
         }
 
-        return DB::transaction(function () use ($ticket, $actor, $status) {
+        DB::transaction(function () use ($ticket, $actor, $status) {
             $previous = $ticket->status;
 
             $ticket->status = $status;
@@ -101,9 +107,13 @@ final readonly class TicketService
                 'from' => $previous->value,
                 'to' => $status->value,
             ]);
-
-            return $ticket;
         });
+
+        if ($status === TicketStatus::Resolved) {
+            TicketResolved::dispatch($ticket, $actor);
+        }
+
+        return $ticket;
     }
 
     private function changeSubject(Ticket $ticket, User $actor, string $subject): void

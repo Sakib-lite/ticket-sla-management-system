@@ -4,6 +4,7 @@ namespace App\Services\Replies;
 
 use App\Enums\ActivityType;
 use App\Enums\TicketStatus;
+use App\Events\ReplyAdded;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\User;
@@ -28,7 +29,7 @@ final readonly class ReplyService
             throw new TicketClosedException($ticket);
         }
 
-        return DB::transaction(function () use ($ticket, $author, $body, $internal, $files) {
+        $reply = DB::transaction(function () use ($ticket, $author, $body, $internal, $files) {
             $reply = $ticket->replies()->create([
                 'author_id' => $author->id,
                 'body' => $body,
@@ -50,6 +51,12 @@ final readonly class ReplyService
 
             return $reply;
         });
+
+        if (! $internal) {
+            ReplyAdded::dispatch($reply, $author);
+        }
+
+        return $reply;
     }
 
     private function followUpStatus(Ticket $ticket, User $author): void

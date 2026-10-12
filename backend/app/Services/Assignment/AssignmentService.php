@@ -3,6 +3,7 @@
 namespace App\Services\Assignment;
 
 use App\Enums\ActivityType;
+use App\Events\TicketAssigned;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\ActivityRecorder;
@@ -18,13 +19,13 @@ final readonly class AssignmentService
 
     public function assign(Ticket $ticket, User $agent, User $actor): Ticket
     {
-        return DB::transaction(function () use ($ticket, $agent, $actor) {
-            $previous = $ticket->assignee;
+        $previous = $ticket->assignee;
 
-            if ($previous?->is($agent)) {
-                return $ticket;
-            }
+        if ($previous?->is($agent)) {
+            return $ticket;
+        }
 
+        DB::transaction(function () use ($ticket, $agent, $actor, $previous) {
             $this->transferTo($ticket, $agent);
 
             $this->activities->record($ticket, ActivityType::Assigned, $actor, [
@@ -32,14 +33,16 @@ final readonly class AssignmentService
                 'to' => $agent->name,
                 'agent_id' => $agent->id,
             ]);
-
-            return $ticket;
         });
+
+        TicketAssigned::dispatch($ticket, $agent, $actor);
+
+        return $ticket;
     }
 
     public function claim(Ticket $ticket, User $agent): Ticket
     {
-        return DB::transaction(function () use ($ticket, $agent) {
+        DB::transaction(function () use ($ticket, $agent) {
             $claimed = Ticket::query()
                 ->whereKey($ticket->id)
                 ->whereNull('assigned_agent_id')
@@ -55,9 +58,13 @@ final readonly class AssignmentService
                 'to' => $agent->name,
                 'agent_id' => $agent->id,
             ]);
-
-            return $ticket->refresh();
         });
+
+        $ticket->refresh();
+
+        TicketAssigned::dispatch($ticket, $agent, $agent);
+
+        return $ticket;
     }
 
     public function unassign(Ticket $ticket, User $actor): Ticket
@@ -98,6 +105,8 @@ final readonly class AssignmentService
             'to' => $agent->name,
             'agent_id' => $agent->id,
         ]);
+
+        TicketAssigned::dispatch($ticket, $agent, null);
 
         return $agent;
     }
