@@ -101,8 +101,9 @@ final readonly class DashboardMetrics
             ->groupBy('users.id', 'users.name')
             ->orderByDesc('total')
             ->orderBy('users.name')
+            ->toBase()
             ->get()
-            ->map(fn (Ticket $row) => [
+            ->map(fn (object $row) => [
                 'agent_id' => (int) $row->agent_id,
                 'agent_name' => $row->agent_name,
                 'total' => (int) $row->total,

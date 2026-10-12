@@ -11,7 +11,7 @@ final class ActivityPresenter
 {
     public function describe(TicketActivity $activity): string
     {
-        $actor = $activity->actor?->name ?? 'System';
+        $actor = $activity->actor->name ?? 'System';
         $payload = $activity->payload ?? [];
 
         return match ($activity->type) {

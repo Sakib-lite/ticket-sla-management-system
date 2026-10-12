@@ -17,10 +17,9 @@ class CategoryController extends Controller
     {
         $includeInactive = $request->boolean('include_inactive') && $request->user()->can('viewInactive', Category::class);
 
-        $categories = Category::query()
-            ->when(! $includeInactive, fn ($query) => $query->active())
-            ->orderBy('name')
-            ->get();
+        $categories = $includeInactive
+            ? Category::query()->orderBy('name')->get()
+            : Category::activeCached();
 
         return CategoryResource::collection($categories);
     }

@@ -129,7 +129,7 @@ final class ImportRowValidator
 
     /**
      * @param  list<array{row: int, data: array<string, string>}>  $rows
-     * @return array<string, true>
+     * @return array<string, bool>
      */
     private function existingReferences(array $rows): array
     {

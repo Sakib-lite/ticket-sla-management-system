@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\ActivityType;
+use App\Enums\Role;
 use App\Enums\SlaStatus;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
@@ -40,8 +41,8 @@ class TicketSeeder extends Seeder
             return;
         }
 
-        $customers = User::where('role', 'customer')->get();
-        $agents = User::agents()->get();
+        $customers = User::query()->where('role', Role::Customer)->get();
+        $agents = User::query()->agents()->get();
         $categories = Category::all()->keyBy('name');
 
         foreach (self::SUBJECTS as $categoryName => $subjects) {
@@ -84,6 +85,7 @@ class TicketSeeder extends Seeder
         ]);
     }
 
+    /** @param  Collection<int, User>  $agents */
     private function progress(Ticket $ticket, Collection $agents, User $customer, Carbon $createdAt): void
     {
         $finalStatus = fake()->randomElement([

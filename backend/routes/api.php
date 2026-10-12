@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('ping', fn () => ['message' => 'Support Desk API is running.']);
 
-Route::post('login', [AuthController::class, 'login']);
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);

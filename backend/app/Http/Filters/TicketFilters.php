@@ -53,7 +53,7 @@ final readonly class TicketFilters
         $query->where(function (Builder $query) use ($term, $escaped) {
             $query->where('ticket_number', 'like', "%{$escaped}%");
 
-            if ($query->getConnection()->getDriverName() === 'mysql') {
+            if ($query->getModel()->getConnection()->getDriverName() === 'mysql') {
                 $query->orWhereFullText(['subject', 'description'], $term);
             } else {
                 $query->orWhere('subject', 'like', "%{$escaped}%");

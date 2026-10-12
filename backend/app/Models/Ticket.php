@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use LogicException;
 
 #[Fillable([
     'ticket_number',
@@ -60,7 +61,7 @@ class Ticket extends Model
         ];
     }
 
-    public function resolveRouteBinding($value, $field = null): ?self
+    public function resolveRouteBinding($value, $field = null): ?Model
     {
         if ($field === null && preg_match(self::NUMBER_PATTERN, (string) $value)) {
             return $this->where('ticket_number', strtoupper($value))->first();
@@ -107,6 +108,10 @@ class Ticket extends Model
 
     public function slaDeadlines(): SlaDeadlines
     {
+        if ($this->sla_approaching_at === null || $this->sla_due_at === null) {
+            throw new LogicException("Ticket {$this->ticket_number} has no SLA deadlines.");
+        }
+
         return new SlaDeadlines(
             approachingAt: $this->sla_approaching_at,
             dueAt: $this->sla_due_at,

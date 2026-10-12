@@ -16,7 +16,7 @@ class AgentResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'is_available' => $this->is_available,
-            'active_tickets_count' => $this->active_tickets_count,
+            'active_tickets_count' => $this->resource->getAttribute('active_tickets_count'),
         ];
     }
 }

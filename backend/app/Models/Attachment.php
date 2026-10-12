@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use LogicException;
 
 #[Fillable(['uploaded_by', 'disk', 'path', 'original_name', 'mime_type', 'size'])]
 class Attachment extends Model
@@ -22,7 +23,7 @@ class Attachment extends Model
         ];
     }
 
-    /** @return MorphTo<Ticket|TicketReply, $this> */
+    /** @return MorphTo<Model, $this> */
     public function attachable(): MorphTo
     {
         return $this->morphTo();
@@ -36,7 +37,13 @@ class Attachment extends Model
 
     public function ticket(): Ticket
     {
-        return $this->attachable instanceof Ticket ? $this->attachable : $this->attachable->ticket;
+        $attachable = $this->attachable;
+
+        return match (true) {
+            $attachable instanceof Ticket => $attachable,
+            $attachable instanceof TicketReply => $attachable->ticket,
+            default => throw new LogicException("Attachment {$this->id} is not linked to a ticket."),
+        };
     }
 
     public function isInternal(): bool

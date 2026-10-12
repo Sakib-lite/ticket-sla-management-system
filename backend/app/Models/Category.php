@@ -5,9 +5,11 @@ namespace App\Models;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 #[Fillable(['name', 'slug', 'is_active'])]
 class Category extends Model
@@ -15,11 +17,27 @@ class Category extends Model
     /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
+    public const ACTIVE_CACHE_KEY = 'categories:active';
+
+    protected static function booted(): void
+    {
+        $flushCache = fn () => Cache::forget(self::ACTIVE_CACHE_KEY);
+
+        static::saved($flushCache);
+        static::deleted($flushCache);
+    }
+
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    /** @return Collection<int, self> */
+    public static function activeCached(): Collection
+    {
+        return Cache::rememberForever(self::ACTIVE_CACHE_KEY, fn () => self::query()->active()->orderBy('name')->get());
     }
 
     /** @return HasMany<Ticket, $this> */

@@ -47,6 +47,12 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class, 'assigned_agent_id');
     }
 
+    /** @return HasMany<Ticket, $this> */
+    public function activeAssignedTickets(): HasMany
+    {
+        return $this->assignedTickets()->active();
+    }
+
     public function isAdministrator(): bool
     {
         return $this->role === Role::Administrator;

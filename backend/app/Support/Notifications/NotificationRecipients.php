@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 
 final class NotificationRecipients
 {
@@ -34,10 +35,10 @@ final class NotificationRecipients
     }
 
     /**
-     * @param  Collection<int, User>  $recipients
-     * @return Collection<int, User>
+     * @param  SupportCollection<int, User>  $recipients
+     * @return SupportCollection<int, User>
      */
-    public function without(Collection $recipients, ?User $actor): Collection
+    public function without(SupportCollection $recipients, ?User $actor): SupportCollection
     {
         return $recipients->reject(fn (User $user) => $actor?->is($user))->values();
     }

@@ -16,6 +16,7 @@ use App\Services\Assignment\AssignmentService;
 use App\Services\Attachments\AttachmentService;
 use App\Support\Sla\SlaCalculator;
 use App\Support\Tickets\TicketNumberGenerator;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
@@ -179,7 +180,7 @@ final readonly class TicketService
     private function markResolved(Ticket $ticket): void
     {
         $ticket->sla_status = $ticket->liveSlaStatus();
-        $ticket->resolved_at = now();
+        $ticket->resolved_at = CarbonImmutable::now();
         $ticket->resolved_within_sla = $ticket->sla_status !== SlaStatus::Breached;
     }
 
@@ -189,7 +190,7 @@ final readonly class TicketService
             $this->markResolved($ticket);
         }
 
-        $ticket->closed_at = now();
+        $ticket->closed_at = CarbonImmutable::now();
     }
 
     private function markReopened(Ticket $ticket): void
