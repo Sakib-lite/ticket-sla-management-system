@@ -53,5 +53,10 @@ export const navigationItems: NavigationItem[] = [
 export const navigationFor = (role: Role | undefined) =>
   navigationItems.filter((item) => (role ? item.allowedRoles.includes(role) : false));
 
-export const isNavigationItemActive = (pathname: string, href: string) =>
+const matchesPathname = (pathname: string, href: string) =>
   pathname === href || pathname.startsWith(`${href}/`);
+
+export const activeNavigationHref = (pathname: string, items: NavigationItem[]) =>
+  items
+    .filter((item) => matchesPathname(pathname, item.href))
+    .reduce((longest, item) => (item.href.length > longest.length ? item.href : longest), "");
