@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignOut } from "@phosphor-icons/react";
 import { Form } from "@/components";
@@ -11,8 +12,18 @@ import { authApi } from "@/services";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { RequestFailure } from "@/types";
 
+const initialsFor = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
 export default function UserMenu() {
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const updateUser = useAuthStore((state) => state.updateUser);
@@ -35,10 +46,11 @@ export default function UserMenu() {
   };
 
   const leave = async () => {
+    setIsOpen(false);
     const confirmed = await confirmAction({
-      title: "Sign out",
-      description: "You will need to sign in again to continue.",
-      confirmText: "Sign out",
+      title: "Log out",
+      description: "You will need to log in again to continue.",
+      confirmText: "Log out",
       tone: "warning",
     });
 
@@ -50,29 +62,45 @@ export default function UserMenu() {
   };
 
   return (
-    <div className="flex items-center gap-3">
-      {user.role === "agent" && (
-        <div className="hidden items-center gap-2 text-xs text-slate-600 md:flex">
-          <span>{user.is_available ? "Available" : "Away"}</span>
-          <Form.Switch
-            checked={user.is_available ?? true}
-            label="Available for new tickets"
-            onChange={toggleAvailability}
-          />
-        </div>
-      )}
-      <div className="text-right">
-        <p className="text-sm font-medium text-slate-900">{user.name}</p>
-        <p className="text-xs text-slate-500">{ROLE_LABELS[user.role]}</p>
-      </div>
+    <div className="relative">
       <button
         type="button"
-        onClick={leave}
-        aria-label="Sign out"
-        className="rounded-md p-2 text-slate-500 hover:bg-slate-100"
+        onClick={() => setIsOpen((current) => !current)}
+        aria-label="Account menu"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-medium text-white transition hover:bg-slate-700"
       >
-        <SignOut size={18} />
+        {initialsFor(user.name)}
       </button>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+            <div className="px-4 py-3">
+              <p className="text-sm font-medium text-slate-900">{user.name}</p>
+              <p className="text-xs text-slate-500">{ROLE_LABELS[user.role]}</p>
+            </div>
+            {user.role === "agent" && (
+              <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
+                <span className="text-sm text-slate-700">
+                  {user.is_available ? "Available" : "Away"}
+                </span>
+                <Form.Switch
+                  checked={user.is_available ?? true}
+                  label="Available for new tickets"
+                  onChange={toggleAvailability}
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={leave}
+              className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-left text-sm text-slate-700 hover:bg-slate-50"
+            >
+              <SignOut size={16} /> Log out
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

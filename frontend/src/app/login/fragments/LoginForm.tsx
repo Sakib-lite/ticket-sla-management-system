@@ -42,7 +42,7 @@ export default function LoginForm({
         onChange={(event) => onPasswordChange(event.target.value)}
       />
       <Button.Primary type="submit" isLoading={isSubmitting} className="w-full">
-        Sign in
+        Login
       </Button.Primary>
     </form>
   );
