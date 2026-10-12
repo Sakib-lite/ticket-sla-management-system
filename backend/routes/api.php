@@ -1,12 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AvailabilityController;
+use App\Http\Controllers\Api\BusinessHoursController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ImportController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\SlaPolicyController;
 use App\Http\Controllers\Api\TicketActivityController;
 use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\TicketController;
@@ -21,9 +25,20 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
+    Route::patch('me/availability', [AvailabilityController::class, 'update']);
 
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::get('categories', [CategoryController::class, 'index']);
+    Route::post('categories', [CategoryController::class, 'store']);
+    Route::patch('categories/{category}', [CategoryController::class, 'update']);
+
+    Route::get('users', [UserController::class, 'index']);
+    Route::post('users', [UserController::class, 'store']);
+    Route::patch('users/{user}', [UserController::class, 'update']);
+
+    Route::get('settings/sla-policies', [SlaPolicyController::class, 'index']);
+    Route::patch('settings/sla-policies/{sla_policy}', [SlaPolicyController::class, 'update']);
+    Route::get('settings/business-hours', [BusinessHoursController::class, 'show']);
     Route::get('agents', [AgentController::class, 'index']);
 
     Route::get('imports/template', [ImportController::class, 'template']);

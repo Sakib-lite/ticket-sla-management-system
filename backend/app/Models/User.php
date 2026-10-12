@@ -20,6 +20,10 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $attributes = [
+        'is_available' => true,
+    ];
+
     protected function casts(): array
     {
         return [
