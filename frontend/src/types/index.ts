@@ -120,3 +120,27 @@ export type Activity = {
   payload: Record<string, unknown> | null;
   created_at: string;
 };
+
+export type NotificationKind =
+  | "ticket_created"
+  | "ticket_assigned"
+  | "agent_replied"
+  | "customer_replied"
+  | "ticket_resolved"
+  | "sla_approaching"
+  | "sla_breached";
+
+export type AppNotification = {
+  id: string;
+  kind: NotificationKind;
+  data: {
+    ticket_id: number;
+    ticket_number: string;
+    ticket_subject: string;
+    message: string;
+  };
+  read_at: string | null;
+  created_at: string;
+};
+
+export type NotificationFeed = Paginated<AppNotification> & { unread_count: number };

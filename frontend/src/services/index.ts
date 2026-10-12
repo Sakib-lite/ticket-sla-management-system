@@ -3,6 +3,7 @@ export * as agentApi from "./agents/agentApi";
 export * as attachmentApi from "./tickets/attachmentApi";
 export * as authApi from "./auth/authApi";
 export * as categoryApi from "./categories/categoryApi";
+export * as notificationApi from "./notifications/notificationApi";
 export * as replyApi from "./tickets/replyApi";
 export * as ticketApi from "./tickets/ticketApi";
 export type { ReplyPayload } from "./tickets/replyApi";

@@ -1,6 +1,7 @@
 "use client";
 
 import { List } from "@phosphor-icons/react";
+import NotificationMenu from "./NotificationMenu";
 import UserMenu from "./UserMenu";
 
 type TopbarProps = {
@@ -18,7 +19,8 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
       >
         <List size={20} />
       </button>
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-1">
+        <NotificationMenu />
         <UserMenu />
       </div>
     </header>
