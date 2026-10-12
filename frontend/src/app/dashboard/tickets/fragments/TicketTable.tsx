@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Warning } from "@phosphor-icons/react";
 import {
   Button,
   DataTable,
@@ -45,7 +46,18 @@ const columns: Column<Ticket>[] = [
     header: "Priority",
     render: (ticket) => <PriorityBadge priority={ticket.priority} />,
   },
-  { key: "sla", header: "SLA", render: (ticket) => <SlaBadge sla={ticket.sla} /> },
+  {
+    key: "sla",
+    header: "SLA",
+    render: (ticket) => (
+      <span className="inline-flex items-center gap-1.5">
+        <SlaBadge sla={ticket.sla} />
+        {ticket.sla.escalated_at && !ticket.resolved_at && (
+          <Warning size={14} weight="fill" className="text-red-600" aria-label="Escalated" />
+        )}
+      </span>
+    ),
+  },
   {
     key: "assignee",
     header: "Assignee",

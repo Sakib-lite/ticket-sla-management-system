@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, PencilSimple } from "@phosphor-icons/react";
-import { Button, PageHeader, PriorityBadge, SlaBadge, StatusBadge } from "@/components";
+import { ArrowLeft, PencilSimple, Warning } from "@phosphor-icons/react";
+import { Badge, Button, PageHeader, PriorityBadge, SlaBadge, StatusBadge } from "@/components";
 import { TICKETS_PATH } from "@/constants/paths";
 import type { Ticket } from "@/types";
 
@@ -33,6 +33,11 @@ export default function TicketHeader({ ticket, canEdit, onEdit }: TicketHeaderPr
             <StatusBadge status={ticket.status} />
             <PriorityBadge priority={ticket.priority} />
             <SlaBadge sla={ticket.sla} />
+            {ticket.sla.escalated_at && !ticket.resolved_at && (
+              <Badge tone="red">
+                <Warning size={12} weight="fill" className="mr-1" /> Escalated
+              </Badge>
+            )}
           </span>
         }
         actions={
