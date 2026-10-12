@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Enums\SlaStatus;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Observers\TicketObserver;
 use App\Support\Sla\SlaDeadlines;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'resolved_within_sla',
     'external_reference',
 ])]
+#[ObservedBy(TicketObserver::class)]
 class Ticket extends Model
 {
     /** @use HasFactory<TicketFactory> */

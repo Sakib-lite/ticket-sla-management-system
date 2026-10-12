@@ -10,6 +10,8 @@ final readonly class TicketFilters
 {
     public const SORTABLE = ['created_at', 'sla_due_at', 'priority', 'updated_at'];
 
+    private const TICKET_NUMBER_PATTERN = '/^[A-Z]+-\\d{4}-\\d+$/i';
+
     /** @param  array<string, mixed>  $filters */
     public function __construct(private array $filters) {}
 
@@ -38,11 +40,25 @@ final readonly class TicketFilters
     /** @param  Builder<Ticket>  $query */
     private function search(Builder $query, string $term): void
     {
-        $escaped = addcslashes(trim($term), '%_\\');
+        $term = trim($term);
 
-        $query->where(fn (Builder $query) => $query
-            ->where('ticket_number', 'like', "%{$escaped}%")
-            ->orWhere('subject', 'like', "%{$escaped}%"));
+        if (preg_match(self::TICKET_NUMBER_PATTERN, $term)) {
+            $query->where('ticket_number', strtoupper($term));
+
+            return;
+        }
+
+        $escaped = addcslashes($term, '%_\\');
+
+        $query->where(function (Builder $query) use ($term, $escaped) {
+            $query->where('ticket_number', 'like', "%{$escaped}%");
+
+            if ($query->getConnection()->getDriverName() === 'mysql') {
+                $query->orWhereFullText(['subject', 'description'], $term);
+            } else {
+                $query->orWhere('subject', 'like', "%{$escaped}%");
+            }
+        });
     }
 
     /** @param  Builder<Ticket>  $query */

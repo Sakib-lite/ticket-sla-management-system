@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Concurrency;
+namespace Tests\Feature\Mysql;
 
 use App\Enums\ActivityType;
 use App\Models\Category;

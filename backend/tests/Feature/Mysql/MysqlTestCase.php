@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Concurrency;
+namespace Tests\Feature\Mysql;
 
 use Closure;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;

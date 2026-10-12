@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Concurrency;
+namespace Tests\Feature\Mysql;
 
 use App\Models\TicketSequence;
 use App\Support\Tickets\TicketNumberGenerator;
