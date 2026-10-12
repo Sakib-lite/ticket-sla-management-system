@@ -37,7 +37,15 @@ class Category extends Model
     /** @return Collection<int, self> */
     public static function activeCached(): Collection
     {
-        return Cache::rememberForever(self::ACTIVE_CACHE_KEY, fn () => self::query()->active()->orderBy('name')->get());
+        $rows = Cache::rememberForever(
+            self::ACTIVE_CACHE_KEY,
+            fn () => self::query()->active()->orderBy('name')->get()->map->getAttributes()->all(),
+        );
+
+        return (new self)->newCollection(array_map(
+            fn (array $attributes) => (new self)->newFromBuilder($attributes),
+            $rows,
+        ));
     }
 
     /** @return HasMany<Ticket, $this> */
