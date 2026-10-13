@@ -1,3 +1,35 @@
+x-backend-env: &backend-env
+  APP_NAME: "Support Desk"
+  APP_ENV: local
+  APP_KEY: "base64:HkHnc0i99QJh2RWu3WaWsc/8Zr9L5V6f3SwREZ9GHKo="
+  APP_DEBUG: "true"
+  APP_URL: "http://localhost:8005"
+  FRONTEND_URL: "http://localhost:3005"
+  LOG_CHANNEL: stack
+  LOG_LEVEL: debug
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: support_desk
+  DB_USERNAME: support_desk
+  DB_PASSWORD: secret
+  QUEUE_CONNECTION: database
+  CACHE_STORE: database
+  FILESYSTEM_DISK: local
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  MAIL_FROM_ADDRESS: "support@supportdesk.test"
+  MAIL_FROM_NAME: "Support Desk"
+  BUSINESS_TIMEZONE: Asia/Dhaka
+  BUSINESS_OPENS_AT: "09:00"
+  BUSINESS_CLOSES_AT: "18:00"
+  TICKET_NUMBER_PREFIX: TKT
+  TICKET_AUTO_ASSIGN: "true"
+  ATTACHMENTS_DISK: local
+  IMPORTS_DISK: local
+  SANCTUM_TOKEN_EXPIRATION: "1440"
+
 services:
   mysql:
     image: mysql:8.4
@@ -12,6 +44,11 @@ services:
       MYSQL_ROOT_PASSWORD: secret
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   mailpit:
     image: axllent/mailpit:latest
@@ -21,5 +58,66 @@ services:
       - "1025:1025"
       - "8025:8025"
 
+  migrate:
+    build:
+      context: ./backend
+    container_name: support_desk_migrate
+    environment: *backend-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force"]
+
+  backend:
+    build:
+      context: ./backend
+    container_name: support_desk_backend
+    restart: unless-stopped
+    ports:
+      - "8005:8000"
+    environment: *backend-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - backend_storage:/var/www/html/storage/app
+
+  worker:
+    build:
+      context: ./backend
+    container_name: support_desk_worker
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - backend_storage:/var/www/html/storage/app
+    command: ["php", "artisan", "queue:work", "--tries=3", "--sleep=1"]
+
+  scheduler:
+    build:
+      context: ./backend
+    container_name: support_desk_scheduler
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["php", "artisan", "schedule:work"]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8005/api
+    container_name: support_desk_frontend
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    depends_on:
+      - backend
+
 volumes:
   mysql_data:
+  backend_storage:
